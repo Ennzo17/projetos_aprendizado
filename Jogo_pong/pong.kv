@@ -1,0 +1,60 @@
+#:kivy 1.11.1
+
+<PongGame>:
+    ball: pong_ball
+    player1: pong_player1
+    player2: pong_player2
+
+    canvas:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    PongBall:
+        id: pong_ball
+        size: 50, 50
+        center: self.parent.center
+        canvas:
+            Color:
+                rgba: 1, 1, 1, 1
+            Ellipse:  # Torna a bola redonda
+                size: self.size
+                pos: self.pos
+
+    PongPaddle:
+        id: pong_player1
+        x: root.x
+        center_y: root.center_y
+        size: 25, 200
+        canvas:
+            Color:
+                rgba: 0.2, 0.7, 1, 1  # Azul claro
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+    PongPaddle:
+        id: pong_player2
+        x: root.width - self.width
+        center_y: root.center_y
+        size: 25, 200
+        canvas:
+            Color:
+                rgba: 1, 0.4, 0.4, 1  # Vermelho claro
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+    Label:
+        font_size: 40
+        color: 1, 1, 1, 1
+        text: str(root.player1.score)
+        pos: root.width * 0.25, root.height - 70
+
+    Label:
+        font_size: 40
+        color: 1, 1, 1, 1
+        text: str(root.player2.score)
+        pos: root.width * 0.75, root.height - 70
