@@ -1,0 +1,15 @@
+<PersistentCounter>:
+    orientation: "vertical"
+    padding: 20
+    spacing: 20
+
+    Label:
+        text: f"Contador: {root.count}"
+        font_size: 24
+
+    Button:
+        text: "Incrementar"
+        font_size: 20
+        size_hint_y: None
+        height: 50
+        on_press: root.increment()

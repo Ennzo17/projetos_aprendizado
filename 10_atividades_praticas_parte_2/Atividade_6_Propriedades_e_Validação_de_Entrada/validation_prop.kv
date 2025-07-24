@@ -1,0 +1,20 @@
+<ValidatedInputWidget>:
+    orientation: 'vertical'
+    padding: 20
+    spacing: 20
+
+    Label:
+        text: "Digite um texto com pelo menos 5 letras (sem números):"
+        font_size: 18
+        size_hint_y: None
+        height: self.texture_size[1] + 10
+
+    TextInput:
+        multiline: False
+        font_size: 18
+        on_text: root.validated_text = self.text
+
+    Label:
+        text: root.validated_text
+        font_size: 20
+        color: 0, 1, 0, 1  # Verde claro

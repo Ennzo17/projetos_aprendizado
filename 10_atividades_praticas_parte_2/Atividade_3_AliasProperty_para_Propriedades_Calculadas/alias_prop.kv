@@ -1,0 +1,60 @@
+<CalculatorWidget>:
+    orientation: 'vertical'
+    padding: 20
+    spacing: 15
+
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 1, 1  # fundo claro (quase branco azulado)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    # Campo para editar num1
+    BoxLayout:
+        size_hint_y: None
+        height: '40dp'
+        spacing: 10
+
+        Label:
+            text: "Número 1:"
+            size_hint_x: 0.4
+            font_size: '16sp'
+            color: 0, 0, 0, 1  # cor preta
+
+        TextInput:
+            text: str(root.num1)
+            input_filter: 'int'
+            multiline: False
+            foreground_color: 0, 0, 0, 1  # texto preto
+            on_text_validate: root.num1 = int(self.text) if self.text.isdigit() else root.num1
+            on_focus: 
+                if not self.focus and self.text.isdigit(): root.num1 = int(self.text)
+
+    # Campo para editar num2
+    BoxLayout:
+        size_hint_y: None
+        height: '40dp'
+        spacing: 10
+
+        Label:
+            text: "Número 2:"
+            size_hint_x: 0.4
+            font_size: '16sp'
+            color: 0, 0, 0, 1  # cor preta
+
+        TextInput:
+            text: str(root.num2)
+            input_filter: 'int'
+            multiline: False
+            foreground_color: 0, 0, 0, 1  # texto preto
+            on_text_validate: root.num2 = int(self.text) if self.text.isdigit() else root.num2
+            on_focus: 
+                if not self.focus and self.text.isdigit(): root.num2 = int(self.text)
+
+    # Exibe o resultado da soma
+    Label:
+        text: "Soma: " + str(root.sum_result)
+        font_size: '20sp'
+        bold: True
+        color: 0, 0, 0, 1  # cor preta

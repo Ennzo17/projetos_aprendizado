@@ -1,0 +1,41 @@
+# Layout da interface para a classe UserProfileWidget
+<UserProfileWidget>:
+    orientation: 'vertical'  # Os widgets filhos serão organizados verticalmente
+    padding: 20              # Espaçamento interno em todos os lados
+    spacing: 15              # Espaço entre os widgets filhos
+
+    # Cor de fundo da tela (quase branca)
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 0.95, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    # Exibe o nome do usuário
+    Label:
+        text: "Nome: " + root.user_data['name']
+        font_size: '20sp'
+        color: 0, 0, 0, 1  # Cor preta
+
+    # Exibe a idade do usuário
+    Label:
+        text: "Idade: " + str(root.user_data['age'])
+        font_size: '20sp'
+        color: 0, 0, 0, 1
+
+    # Exibe a cidade do usuário
+    Label:
+        text: "Cidade: " + root.user_data['city']
+        font_size: '20sp'
+        color: 0, 0, 0, 1
+
+    # Botão para aumentar a idade
+    Button:
+        text: "Aumentar Idade"
+        size_hint_y: None         # Altura fixa
+        height: '50dp'
+        font_size: '18sp'
+        background_color: 0.3, 0.6, 1, 1  # Azul claro
+        color: 1, 1, 1, 1                # Texto branco
+        on_press: root.update_age()     # Chama o método update_age() ao clicar

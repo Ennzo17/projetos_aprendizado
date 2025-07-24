@@ -1,0 +1,54 @@
+<MovableDot>:
+    # Desenha o ponto vermelho
+    canvas:
+        Color:
+            rgba: 1, 0, 0, 1  # vermelho
+        Ellipse:
+            pos: self.dot_pos
+            size: 30, 30
+
+<RefListPropRoot>:
+    orientation: 'vertical'
+    padding: 15
+    spacing: 10
+
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 1, 1  # fundo branco-azulado claro para toda a tela
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    RelativeLayout:
+        id: canvas_area
+        size_hint_y: 0.8
+
+        MovableDot:
+            id: dot
+
+    BoxLayout:
+        size_hint_y: 0.2
+        spacing: 10
+
+        canvas.before:
+            Color:
+                rgba: 0.95, 0.95, 1, 1  # fundo igual ao de cima
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Button:
+            text: "Esquerda"
+            on_press: dot.move_left()
+
+        Button:
+            text: "Direita"
+            on_press: dot.move_right()
+
+        Button:
+            text: "Cima"
+            on_press: dot.move_up()
+
+        Button:
+            text: "Baixo"
+            on_press: dot.move_down()

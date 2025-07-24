@@ -1,0 +1,25 @@
+<ThemeRoot>:
+    orientation: "vertical"
+    padding: 20
+    spacing: 20
+
+    Label:
+        text: "Exemplo de Tema Dinâmico"
+        font_size: 24
+        color: app.app_theme['secondary']
+
+    Button:
+        text: "Botão Primário"
+        font_size: 18
+        background_color: app.app_theme['primary']
+
+    Label:
+        text: "Texto secundário"
+        font_size: 18
+        color: app.app_theme['secondary']
+
+    Button:
+        text: "Alternar Tema"
+        font_size: 18
+        background_color: app.app_theme['primary']
+        on_press: app.toggle_theme()
