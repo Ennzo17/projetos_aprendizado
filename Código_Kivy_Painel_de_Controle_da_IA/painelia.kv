@@ -1,0 +1,73 @@
+#:kivy 2.3.0
+
+<PainelIA>:
+    orientation: "vertical"
+    padding: 20
+    spacing: 15
+
+    # Fundo com imagem
+    canvas.before:
+        Rectangle:
+            source: "cidade.png"  # Nome da imagem
+            pos: self.pos
+            size: self.size
+
+    # ===== CAMPO DE STATUS =====
+    Label:
+        text: root.status_text  # Texto ligado à propriedade status_text do Python
+        font_size: 22
+        bold: True
+        color: 0, 1, 0.5, 1  # Cor verde neon
+        size_hint_y: None
+        height: 50
+        canvas.before:
+            Color:
+                rgba: 0, 0.5, 0.3, 0.3  # Fundo semi-transparente verde
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [10]  # Bordas arredondadas
+
+    # ===== BARRA DE PROGRESSO (Nível de Ameaça) =====
+    ProgressBar:
+        value: root.nivel_ameaca  # Ligada à propriedade nivel_ameaca
+        max: 100
+        size_hint_y: None
+        height: 25
+
+    # ===== BOTÃO DE ALTERNÂNCIA IA ON/OFF =====
+    ToggleButton:
+        text: "Ativar IA" if not root.ia_ligada else "Desativar IA"
+        size_hint_y: None
+        height: 50
+        font_size: 18
+        background_color: (0, 0.5, 0.8, 1)  # Azul futurista
+        on_press: root.alternar_ia()  # Chama função no Python
+
+    # ===== CAMPO DE COMANDO E BOTÃO ENVIAR =====
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 10
+
+        # Campo de entrada de texto
+        TextInput:
+            id: input_comando
+            hint_text: "Digite um comando..."
+            multiline: False  # Apenas uma linha
+            background_color: (0.1, 0.1, 0.1, 1)  # Preto
+            foreground_color: (0, 1, 0.5, 1)  # Verde neon
+
+        # Botão para enviar comando
+        Button:
+            text: "Enviar"
+            background_color: (0.2, 0.7, 0.2, 1)  # Verde
+            on_press: root.enviar_comando()
+
+    # ===== TEXTO DECORATIVO FUTURISTA =====
+    Label:
+        text: "[b][color=00FFAA]◉ Painel de Controle Futurista[/color][/b]"
+        markup: True  # Permite uso de cores e estilos
+        font_size: 16
+        size_hint_y: None
+        height: 30
