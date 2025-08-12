@@ -1,0 +1,116 @@
+<BotaoMenu@Button>:
+    size_hint_y: None
+    height: 50
+    font_size: 18
+
+<HomeScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: "Tela Principal"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+
+        BotaoMenu:
+            text: "Ir para Tela 1"
+            on_release: app.root.current = "tela1"
+
+        BotaoMenu:
+            text: "Ir para Tela 2"
+            on_release: app.root.current = "tela2"
+
+        BotaoMenu:
+            text: "Ir para Tela 3"
+            on_release: app.root.current = "tela3"
+
+        BotaoMenu:
+            text: "Ir para Tela 4"
+            on_release: app.root.current = "tela4"
+
+        BotaoMenu:
+            text: "Ir para Tela 5"
+            on_release: app.root.current = "tela5"
+
+<Tela1>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+        Label:
+            text: "Tela 1"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+        Button:
+            text: "Voltar para a página inicial"
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = "home"
+
+<Tela2>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+        Label:
+            text: "Tela 2"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+        Button:
+            text: "Voltar para a página inicial"
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = "home"
+
+<Tela3>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+        Label:
+            text: "Tela 3"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+        Button:
+            text: "Voltar para a página inicial"
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = "home"
+
+<Tela4>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+        Label:
+            text: "Tela 4"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+        Button:
+            text: "Voltar para a página inicial"
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = "home"
+
+<Tela5>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+        Label:
+            text: "Tela 5"
+            font_size: 28
+            size_hint_y: None
+            height: 60
+        Button:
+            text: "Voltar para a página inicial"
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = "home"
