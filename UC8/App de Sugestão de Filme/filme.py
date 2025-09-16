@@ -10,7 +10,12 @@ from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.metrics import dp
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.popup import Popup 
+from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
+from kivy.clock import Clock
+from kivy.graphics import Color, RoundedRectangle
+from kivy.properties import ListProperty, StringProperty
+from kivy.uix.modalview import ModalView
 
 # Lista de filmes por gênero com URLs de imagens reais
 filmes_por_genero = {
@@ -51,12 +56,75 @@ filmes_por_genero = {
     ]
 }
 
+class RoundedButton(Button):
+    bg_color = ListProperty([1, 1, 1, 1])
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_normal = ''
+        self.background_color = [0, 0, 0, 0]
+        with self.canvas.before:
+            Color(rgba=self.bg_color)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[15])
+        
+        self.bind(pos=self.update_rect, size=self.update_rect)
+    
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
+class FilmeSuggestion(BoxLayout):
+    titulo = StringProperty("")
+    ano = StringProperty("")
+    imagem = StringProperty("")
+    
+    def __init__(self, titulo, ano, imagem, **kwargs):
+        super().__init__(**kwargs)
+        self.titulo = titulo
+        self.ano = ano
+        self.imagem = imagem
+        self.orientation = 'horizontal'
+        self.size_hint_y = None
+        self.height = dp(80)
+        self.padding = [dp(10), dp(5)]
+        self.spacing = dp(10)
+        
+        # Imagem do filme
+        img = AsyncImage(
+            source=imagem,
+            size_hint=(None, 1),
+            width=dp(60),
+            allow_stretch=True,
+            keep_ratio=True
+        )
+        
+        # Informações do filme
+        info_layout = BoxLayout(orientation='vertical')
+        info_layout.add_widget(Label(
+            text=titulo, 
+            size_hint_y=0.6,
+            font_size=dp(16),
+            bold=True,
+            color=get_color_from_hex('#2c3e50'),
+            halign='left'
+        ))
+        info_layout.add_widget(Label(
+            text=f"({ano})", 
+            size_hint_y=0.4,
+            font_size=dp(14),
+            color=get_color_from_hex('#7f8c8d'),
+            halign='left'
+        ))
+        
+        self.add_widget(img)
+        self.add_widget(info_layout)
+
 class SugestaoFilmeApp(App):
     def build(self):
         # Configuração da janela
         Window.clearcolor = get_color_from_hex('#2c3e50')
         self.title = "Sugestão de Filmes por Gênero"
-        Window.size = (400, 800)
+        Window.size = (400, 700)
         
         # Lista para armazenar o histórico
         self.historico_sugestoes = []
@@ -64,21 +132,38 @@ class SugestaoFilmeApp(App):
         # Layout principal
         layout_principal = BoxLayout(orientation='vertical', padding=0, spacing=0)
         
-        # Cabeçalho simplificado (sem o quadrado azul)
-        cabecalho = BoxLayout(orientation='vertical', size_hint_y=None, height=dp(60))
+        # Cabeçalho
+        cabecalho = BoxLayout(
+            orientation='vertical', 
+            size_hint_y=None, 
+            height=dp(80),
+            padding=[0, dp(10)]
+        )
+        with cabecalho.canvas.before:
+            Color(rgba=get_color_from_hex('#3498db'))
+            self.header_rect = RoundedRectangle(size=cabecalho.size, pos=cabecalho.pos, radius=[0, 0, 15, 15])
+        cabecalho.bind(size=self.update_header_rect, pos=self.update_header_rect)
+        
         titulo = Label(
-            text="Sugestão de Filmes por Gênero",
-            font_size=dp(20),
+            text="Sugestão de Filmes",
+            font_size=dp(22),
             bold=True,
             color=get_color_from_hex('#ecf0f1'),
-            size_hint_y=None,
-            height=dp(60)
+        )
+        subtitulo = Label(
+            text="Descubra seu próximo filme favorito",
+            font_size=dp(14),
+            color=get_color_from_hex('#ecf0f1'),
         )
         cabecalho.add_widget(titulo)
+        cabecalho.add_widget(subtitulo)
         layout_principal.add_widget(cabecalho)
         
-        # Container para o conteúdo principal
-        container_principal = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(15))
+        # Container para o conteúdo principal com rolagem
+        scroll = ScrollView()
+        container_principal = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(15), size_hint_y=None)
+        container_principal.bind(minimum_height=container_principal.setter('height'))
+        scroll.add_widget(container_principal)
         
         # Campo de nome
         container_nome = BoxLayout(orientation='vertical', size_hint_y=None, height=dp(80))
@@ -126,11 +211,11 @@ class SugestaoFilmeApp(App):
         container_principal.add_widget(container_genero)
         
         # Botão
-        botao_sugerir = Button(
+        botao_sugerir = RoundedButton(
             text="Sugerir Filme",
             size_hint_y=None,
             height=dp(50),
-            background_color=get_color_from_hex('#e74c3c'),
+            bg_color=get_color_from_hex('#e74c3c'),
             color=get_color_from_hex('#ecf0f1'),
             bold=True
         )
@@ -139,7 +224,7 @@ class SugestaoFilmeApp(App):
         
         # Separador
         separador = Label(
-            text="─" * 30,
+            text="•" * 20,
             color=get_color_from_hex('#7f8c8d'),
             size_hint_y=None,
             height=dp(20)
@@ -149,7 +234,7 @@ class SugestaoFilmeApp(App):
         # Container para a imagem do filme
         self.container_imagem = BoxLayout(
             size_hint_y=None,
-            height=dp(200),
+            height=dp(220),
             padding=(dp(10), 0)
         )
         container_principal.add_widget(self.container_imagem)
@@ -169,38 +254,54 @@ class SugestaoFilmeApp(App):
         container_principal.add_widget(self.label_sugestao)
         
         # Botão para mostrar histórico
-        botao_historico = Button(
+        botao_historico = RoundedButton(
             text="Ver Histórico",
             size_hint_y=None,
             height=dp(40),
-            background_color=get_color_from_hex('#3498db'),
+            bg_color=get_color_from_hex('#3498db'),
             color=get_color_from_hex('#ecf0f1'),
             bold=True
         )
         botao_historico.bind(on_press=self.mostrar_historico)
         container_principal.add_widget(botao_historico)
         
-        # Adiciona o container principal ao layout principal
-        layout_principal.add_widget(container_principal)
+        # Ajusta a altura do container principal
+        container_principal.height = (
+            container_nome.height + container_genero.height + 
+            botao_sugerir.height + separador.height + 
+            self.container_imagem.height + self.label_sugestao.height + 
+            botao_historico.height + (dp(15) * 6)  # spacing * número de gaps
+        )
+        
+        layout_principal.add_widget(scroll)
         
         return layout_principal
+    
+    def update_header_rect(self, instance, value):
+        self.header_rect.pos = instance.pos
+        self.header_rect.size = instance.size
     
     def sugerir_filme(self, instance):
         nome = self.input_nome.text.strip()
         genero = self.spinner_genero.text
         
         if not nome:
-            self.label_sugestao.text = "Por favor, digite seu nome."
-            self.label_sugestao.color = get_color_from_hex('#e74c3c')
-            self.container_imagem.clear_widgets()
+            self.mostrar_erro("Por favor, digite seu nome.")
             return
             
         if genero == 'Selecione um gênero':
-            self.label_sugestao.text = "Por favor, selecione um gênero de filme."
-            self.label_sugestao.color = get_color_from_hex('#e74c3c')
-            self.container_imagem.clear_widgets()
+            self.mostrar_erro("Por favor, selecione um gênero de filme.")
             return
         
+        # Mostra indicador de carregamento
+        self.label_sugestao.text = "Procurando sugestões..."
+        self.label_sugestao.color = get_color_from_hex('#ecf0f1')
+        self.container_imagem.clear_widgets()
+        
+        # Simula um pequeno delay para carregamento (opcional)
+        Clock.schedule_once(lambda dt: self._selecionar_filme(nome, genero), 0.5)
+    
+    def _selecionar_filme(self, nome, genero):
         # Sorteia um filme aleatório do gênero selecionado
         filmes_genero = filmes_por_genero[genero]
         filme_sorteado = random.choice(filmes_genero)
@@ -229,77 +330,83 @@ class SugestaoFilmeApp(App):
             'nome': nome,
             'genero': genero,
             'filme': filme_sorteado['titulo'],
-            'ano': filme_sorteado['ano']
+            'ano': filme_sorteado['ano'],
+            'imagem': filme_sorteado['imagem']
         })
     
+    def mostrar_erro(self, mensagem):
+        self.label_sugestao.text = mensagem
+        self.label_sugestao.color = get_color_from_hex('#e74c3c')
+        self.container_imagem.clear_widgets()
+    
     def mostrar_historico(self, instance):
-        # Cria uma nova janela para mostrar o histórico
-        historico_popup = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(10))
+        if not self.historico_sugestoes:
+            self.mostrar_popup_simples("Histórico Vazio", "Nenhuma sugestão foi feita ainda.")
+            return
+            
+        # Cria uma popup personalizada para o histórico
+        popup = ModalView(size_hint=(0.9, 0.8), background_color=[0, 0, 0, 0])
         
-        # Título do histórico
-        titulo_historico = Label(
+        # Layout principal da popup
+        main_layout = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
+        
+        # Título
+        titulo = Label(
             text="Histórico de Sugestões",
-            font_size=dp(18),
+            font_size=dp(20),
             bold=True,
             color=get_color_from_hex('#ecf0f1'),
             size_hint_y=None,
             height=dp(40)
         )
-        historico_popup.add_widget(titulo_historico)
+        main_layout.add_widget(titulo)
         
         # ScrollView para o histórico
         scroll = ScrollView()
         historico_container = BoxLayout(orientation='vertical', size_hint_y=None, spacing=dp(10))
         historico_container.bind(minimum_height=historico_container.setter('height'))
         
-        if not self.historico_sugestoes:
-            # Se não há histórico
-            sem_historico = Label(
-                text="Nenhuma sugestão ainda.",
-                font_size=dp(16),
-                color=get_color_from_hex('#bdc3c7'),
-                size_hint_y=None,
-                height=dp(40)
+        # Adiciona cada item do histórico
+        for sugestao in reversed(self.historico_sugestoes):
+            item = FilmeSuggestion(
+                titulo=sugestao['filme'],
+                ano=str(sugestao['ano']),
+                imagem=sugestao['imagem']
             )
-            historico_container.add_widget(sem_historico)
-        else:
-            # Adiciona cada item do histórico
-            for sugestao in reversed(self.historico_sugestoes):  # Mostra do mais recente para o mais antigo
-                item_historico = Label(
-                    text=f"{sugestao['nome']} - {sugestao['genero']}:\n{sugestao['filme']} ({sugestao['ano']})",
-                    font_size=dp(14),
-                    color=get_color_from_hex('#ecf0f1'),
-                    text_size=(Window.width - dp(60), None),
-                    halign='left',
-                    size_hint_y=None,
-                    height=dp(60)
-                )
-                item_historico.bind(texture_size=item_historico.setter('size'))
-                historico_container.add_widget(item_historico)
+            historico_container.add_widget(item)
         
         scroll.add_widget(historico_container)
-        historico_popup.add_widget(scroll)
+        main_layout.add_widget(scroll)
         
         # Botão para fechar
-        botao_fechar = Button(
+        btn_fechar = RoundedButton(
             text="Fechar",
             size_hint_y=None,
             height=dp(40),
-            background_color=get_color_from_hex('#e74c3c'),
+            bg_color=get_color_from_hex('#e74c3c'),
             color=get_color_from_hex('#ecf0f1')
         )
+        btn_fechar.bind(on_press=popup.dismiss)
+        main_layout.add_widget(btn_fechar)
         
-        # Cria a popup
-        popup = Popup(
-            title='',
-            content=historico_popup,
-            size_hint=(0.9, 0.7),
-            auto_dismiss=False
-        )
+        # Ajusta a altura do container
+        historico_container.height = len(self.historico_sugestoes) * dp(90)
         
-        botao_fechar.bind(on_press=popup.dismiss)
-        historico_popup.add_widget(botao_fechar)
+        popup.add_widget(main_layout)
+        popup.open()
+    
+    def mostrar_popup_simples(self, titulo, mensagem):
+        popup = ModalView(size_hint=(0.7, 0.4))
         
+        content = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(20))
+        content.add_widget(Label(text=titulo, font_size=dp(18), bold=True))
+        content.add_widget(Label(text=mensagem, font_size=dp(16)))
+        
+        btn = RoundedButton(text="OK", size_hint_y=None, height=dp(40))
+        btn.bind(on_press=popup.dismiss)
+        content.add_widget(btn)
+        
+        popup.add_widget(content)
         popup.open()
 
 if __name__ == '__main__':

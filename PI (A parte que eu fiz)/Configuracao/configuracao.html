@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurações – Agendamentos & Vendas</title>
+  <style>
+    :root{
+      --bg: #0f1216;
+      --card: #151a21;
+      --muted: #8b95a7;
+      --text: #e7ecf3;
+      --accent: #5bbcff;
+      --accent-2: #7cf2c9;
+      --stroke: #232a35;
+      --danger: #ff6b6b;
+      --warning: #ffcd57;
+      --success: #22c55e;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #f7f8fb;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --text: #0f172a;
+        --accent: #2563eb;
+        --accent-2: #059669;
+        --stroke: #e5e7eb;
+        --danger: #dc2626;
+        --warning: #ca8a04;
+        --success: #16a34a;
+        --shadow: 0 10px 30px rgba(2, 6, 23, .08);
+      }
+    }
+
+    html, body{
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 600px at 100% 0%, rgba(91,188,255,.08), transparent 60%),
+                  radial-gradient(800px 500px at 0% 100%, rgba(124,242,201,.09), transparent 60%),
+                  var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color: var(--text);
+    }
+
+    .app{
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    .topbar{
+      display: grid;
+      grid-template-columns: 40px 1fr 40px;
+      align-items: center;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(0deg, transparent 0%, var(--bg) 60%);
+      padding: 12px 0 20px;
+      z-index: 20;
+      backdrop-filter: saturate(1.2) blur(2px);
+    }
+
+    .iconbtn{
+      height: 40px; width: 40px; border-radius: 12px; display: grid; place-items: center;
+      border: 1px solid var(--stroke); background: var(--card); box-shadow: var(--shadow);
+      cursor: pointer; transition: transform .12s ease;
+    }
+    .iconbtn:active{ transform: translateY(1px) scale(.98); }
+
+    h1{
+      font-size: 20px; margin: 0; text-align: center; letter-spacing: .3px;
+    }
+
+    .subtitle{
+      font-size: 13px; color: var(--muted); margin-top: 6px; text-align: center;
+    }
+
+    .grid{
+      display: grid; gap: 16px; margin-top: 18px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)) , var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .card h2{ font-size: 13px; margin: 0 0 10px; color: var(--muted); letter-spacing: .4px; }
+
+    .row{
+      display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px;
+      padding: 12px 8px; border-top: 1px dashed var(--stroke);
+    }
+    .row:first-of-type{ border-top: 0; }
+
+    .row .title{ font-size: 15px; font-weight: 600; }
+    .row .desc{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .tag{ font-size: 11px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--stroke); color: var(--muted); }
+
+    .pill{
+      padding: 8px 10px; border-radius: 12px; border: 1px solid var(--stroke); font-size: 12px; color: var(--muted);
+      background: rgba(255,255,255,.02);
+    }
+
+    .switch{ position: relative; width: 46px; height: 28px; display: inline-block; }
+    .switch input{ display:none; }
+    .slider{
+      position: absolute; inset: 0; background: #3b4451; border-radius: 999px; border: 1px solid var(--stroke);
+      transition: .25s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,.25);
+    }
+    .slider:before{
+      content: ""; position: absolute; height: 22px; width: 22px; border-radius: 50%; background: #fff;
+      top: 50%; transform: translate(3px,-50%); transition: .25s ease; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .switch input:checked + .slider{ background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .switch input:checked + .slider:before{ transform: translate(21px,-50%); }
+
+    .arrow{ opacity: .7; }
+
+    .footer{
+      display: grid; gap: 10px; margin-top: 20px;
+    }
+
+    .btn{
+      display: grid; place-items: center; height: 48px; border-radius: 14px; border: 1px solid var(--stroke);
+      background: var(--card); color: var(--text); font-weight: 700; letter-spacing: .3px; cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn.logout{ color: var(--danger); }
+    .btn.primary{ background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #0c111b; border: 0; }
+
+    /* Accordion */
+    details{ border-top: 1px dashed var(--stroke); padding: 10px 0; }
+    details:first-of-type{ border-top: 0; }
+    summary{ list-style: none; cursor: pointer; display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; }
+    summary::-webkit-details-marker{ display:none; }
+    .chev{ transition: transform .2s ease; }
+    details[open] .chev{ transform: rotate(90deg); }
+
+    .two-col{
+      display: grid; gap: 10px; grid-template-columns: 1fr 1fr;
+    }
+
+    .inline-actions{ display: flex; gap: 8px; align-items: center; }
+
+    .divider{ height: 1px; background: var(--stroke); margin: 8px 0; opacity:.8; }
+
+    .hint{ font-size: 11px; color: var(--muted); }
+
+    .search{
+      display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 10px;
+      padding: 10px 12px; border: 1px solid var(--stroke); border-radius: 12px; background: var(--card);
+    }
+    .search input{ background: transparent; border: 0; color: var(--text); outline: none; font-size: 14px; }
+    .kbd{ font: 500 11px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--stroke); color: var(--muted); }
+
+    .small{
+      font-size: 12px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Tela de Configurações">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="iconbtn" aria-label="Voltar" onclick="alert('Voltar')" title="Voltar">
+        <!-- back icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div>
+        <h1>Configurações</h1>
+        <div class="subtitle">Agendamentos de serviços • Loja de produtos</div>
+      </div>
+      <button class="iconbtn" aria-label="Ajuda" onclick="alert('Central de ajuda')" title="Ajuda">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 2-3 5"/><line x1="12" y1="17" x2="12" y2="17"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="grid">
+      <label class="search" aria-label="Buscar configuração">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="q" placeholder="Buscar em Configurações" oninput="filterRows(this.value)">
+        <span class="kbd">/</span>
+      </label>
+    </div>
+
+    <!-- Conta -->
+    <section class="grid" id="sec-conta">
+      <div class="card" aria-labelledby="h-conta">
+        <h2 id="h-conta">CONTA</h2>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="title">Perfil & Equipe</div>
+            <div class="desc">Dados pessoais, papéis de usuário e membros da equipe</div>
+          </div>
+          <div class="inline-actions">
+            <span class="tag">Administrador</span>
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H17a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <div class="title">Assinatura & Faturamento</div>
+            <div class="desc">Plano Pro anual, faturas e métodos de pagamento</div>
+          </div>
+          <div class="inline-actions">
+            <span class="pill">Visa •• 2910</span>
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v14H3z"/><path d="M8 21h8"/></svg>
+          </div>
+          <div>
+            <div class="title">Notificações</div>
+            <div class="desc">E‑mail, push e lembretes de agendamento</div>
+          </div>
+          <label class="switch" title="Ativar notificações">
+            <input type="checkbox" id="notif" checked>
+            <span class="slider" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Operação -->
+    <section class="grid" id="sec-operacao">
+      <div class="card" aria-labelledby="h-oper">
+        <h2 id="h-oper">OPERAÇÃO</h2>
+        <details>
+          <summary>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div>
+              <div class="title">Agendamentos</div>
+              <div class="desc">Regras de reserva, horários e políticas</div>
+            </div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </summary>
+          <div class="divider"></div>
+          <div class="two-col">
+            <label class="pill">Antecedência mínima: <strong id="antecedencia">2h</strong></label>
+            <label class="pill">Janela de cancelamento: <strong id="cancelamento">6h</strong></label>
+          </div>
+          <div style="height:10px"></div>
+          <div class="row" style="border-top:0">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a4 4 0 0 1 4-4h7a4 4 0 0 1 4 4v6"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+            </div>
+            <div>
+              <div class="title">Agendamento online</div>
+              <div class="desc">Permitir que clientes reservem via aplicativo</div>
+            </div>
+            <label class="switch" title="Ativar agendamento online">
+              <input type="checkbox" id="online" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="row">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6"/><path d="M6 20V10"/><path d="M18 20v-2"/></svg>
+            </div>
+            <div>
+              <div class="title">Capacidade por horário</div>
+              <div class="desc">Limitar vagas por funcionário e serviço</div>
+            </div>
+            <span class="pill" id="capacidade">4 vagas</span>
+          </div>
+          <div class="row">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-4a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="title">Equipe & horários</div>
+              <div class="desc">Defina disponibilidade por profissional</div>
+            </div>
+            <button class="iconbtn" onclick="toast('Gerenciar equipe')" title="Gerenciar equipe">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M6 20V10"/><path d="M18 20v-2"/></svg>
+            </button>
+          </div>
+        </details>
+
+        <details>
+          <summary>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a4 4 0 1 0-8 0v2"/></svg>
+            <div>
+              <div class="title">Pagamentos</div>
+              <div class="desc">Taxas, repasses e carteiras</div>
+            </div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </summary>
+          <div class="divider"></div>
+          <div class="row" style="border-top:0">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div>
+              <div class="title">Recebimento automático</div>
+              <div class="desc">Repasse diário ativado</div>
+            </div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div>
+              <div class="title">Taxas personalizadas</div>
+              <div class="desc">Diferentes para serviços e produtos</div>
+            </div>
+            <span class="pill">2,89% • 3,19%</span>
+          </div>
+        </details>
+
+        <details>
+          <summary>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M3 12h.01"/><path d="M8 18h13"/><path d="M3 18h.01"/></svg>
+            <div>
+              <div class="title">Catálogo de Produtos</div>
+              <div class="desc">Estoque, variações e impostos</div>
+            </div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </summary>
+          <div class="divider"></div>
+          <div class="row" style="border-top:0">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14"/><path d="M3 21h18"/><path d="M7 10h10"/></svg>
+            </div>
+            <div>
+              <div class="title">Gestão de estoque</div>
+              <div class="desc">Baixa automática a cada venda</div>
+            </div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v13H3z"/><path d="M16 16l5 5"/></svg>
+            </div>
+            <div>
+              <div class="title">Categorias & variações</div>
+              <div class="desc">Cores, tamanhos e coleções</div>
+            </div>
+            <span class="pill">23 categorias</span>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Integrações -->
+    <section class="grid" id="sec-integracoes">
+      <div class="card" aria-labelledby="h-int">
+        <h2 id="h-int">INTEGRAÇÕES</h2>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-8a4 4 0 0 0-4 4v8"/><path d="M4 17h8a4 4 0 0 0 4-4V5"/></svg>
+          </div>
+          <div>
+            <div class="title">Google Agenda</div>
+            <div class="desc">Sincronização bidirecional de compromissos</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="title">WhatsApp Business</div>
+            <div class="desc">Confirmações e lembretes automáticos</div>
+          </div>
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/></svg>
+          </div>
+          <div>
+            <div class="title">PDV & Impressoras</div>
+            <div class="desc">Etiquetas, comprovantes e balanças</div>
+          </div>
+          <span class="pill">Bluetooth</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Segurança -->
+    <section class="grid" id="sec-seguranca">
+      <div class="card" aria-labelledby="h-sec">
+        <h2 id="h-sec">SEGURANÇA</h2>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <div class="title">Autenticação em 2 etapas</div>
+            <div class="desc">Proteja sua conta com 2FA</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="row">
+          <div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v7"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="title">Sessões ativas</div>
+            <div class="desc">Gerencie dispositivos conectados</div>
+          </div>
+          <button class="iconbtn" onclick="toast('2 sessões encerradas')" title="Encerrar sessões">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 15l6-6M15 15L9 9"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rodapé -->
+    <div class="footer">
+      <button class="btn primary" onclick="save()">Salvar alterações</button>
+      <button class="btn logout" onclick="confirmarSair()">Sair da conta</button>
+      <div class="small">Versão 2.8.4 • Ambiente: <strong>Produção</strong></div>
+    </div>
+  </div>
+
+  <script>
+    // Atalhos
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === '/'){ e.preventDefault(); document.getElementById('q').focus(); }
+    });
+
+    function toast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+        background:'linear-gradient(90deg, var(--accent), var(--accent-2))', color:'#0c111b',
+        padding:'10px 14px', borderRadius:'12px', fontWeight:'700', boxShadow:'var(--shadow)', zIndex:9999
+      });
+      document.body.appendChild(t);
+      setTimeout(()=> t.remove(), 2200);
+    }
+
+    function save(){
+      toast('Configurações salvas ✅');
+    }
+
+    function confirmarSair(){
+      if(confirm('Deseja realmente sair da conta?')){
+        toast('Sessão encerrada');
+      }
+    }
+
+    // Filtro básico para itens/linhas
+    function filterRows(query){
+      const q = query.toLowerCase().trim();
+      const containers = document.querySelectorAll('.card');
+      containers.forEach(card => {
+        // Exibir o card se ao menos uma linha corresponder
+        let showCard = false;
+        card.querySelectorAll('.row, details').forEach(el => {
+          let text = el.innerText.toLowerCase();
+          let match = text.includes(q);
+          if(el.tagName.toLowerCase() === 'details'){
+            // também verifica sumário
+            const sum = el.querySelector('summary');
+            if(sum) match = (sum.innerText.toLowerCase().includes(q)) || match;
+          }
+          if(q === ''){ el.style.display = ''; showCard = true; }
+          else{
+            if(el.classList.contains('row') || el.tagName.toLowerCase()==='details'){
+              el.style.display = match ? '' : 'none';
+              if(match) showCard = true;
+            }
+          }
+        });
+        card.style.display = showCard ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
