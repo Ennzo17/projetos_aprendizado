@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário de Cadastro</title>
+  <style>
+    /* ===============================
+       🎨 Paleta de Cores
+       #edf2f4 → Fundo do card (claro)
+       #8d99ae → Labels, bordas, botões secundários
+       #2b2d42 → Título, botões principais, fundo escuro
+    ================================*/
+
+    /* -----------------------------
+       Body: imagem de fundo e centralização
+    ------------------------------*/
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://i.pinimg.com/736x/e5/da/98/e5da982937e97a4dadf07789b77bb3a9.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #2b2d42;
+    }
+
+    /* -----------------------------
+       Card centralizado
+    ------------------------------*/
+    .card {
+      background: rgba(237, 242, 244, 0.95); /* semi-transparente sobre o fundo */
+      border-radius: 16px;
+      padding: 30px;
+      width: 380px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    /* -----------------------------
+       Imagem ilustrativa no topo
+    ------------------------------*/
+    .card img {
+      width: 80px;
+      margin-bottom: 12px;
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* -----------------------------
+       Título do card
+    ------------------------------*/
+    .card h2 {
+      margin: 0 0 20px;
+      color: #2b2d42;
+    }
+
+    /* -----------------------------
+       Labels dos inputs
+    ------------------------------*/
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+      text-align: left;
+      color: #8d99ae;
+    }
+
+    /* -----------------------------
+       Inputs do formulário
+    ------------------------------*/
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 2px solid #8d99ae;
+      background: #fff;
+      color: #2b2d42;
+      box-sizing: border-box;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: #2b2d42;
+      outline: none;
+      box-shadow: 0 0 6px rgba(43, 45, 66, 0.5);
+    }
+
+    /* Estados de validação */
+    .valid {
+      border-color: #28a745 !important; /* verde para válido */
+    }
+
+    .invalid {
+      border-color: #dc3545 !important; /* vermelho para inválido */
+    }
+
+    /* -----------------------------
+       Botões do formulário
+    ------------------------------*/
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px; /* espaçamento entre botões */
+    }
+
+    /* Botões ocupando o mesmo espaço */
+    .actions input,
+    .actions button {
+      flex: 1; /* ambos ocupam mesma largura */
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+
+    /* Botão principal: Cadastrar */
+    .actions input {
+      background: #2b2d42;
+      color: #fff;
+    }
+
+    .actions input:hover {
+      background: #8d99ae;
+    }
+
+    /* Botão secundário: Limpar */
+    .actions button {
+      background: #2b2d42  ;
+      color: #fff;
+    }
+
+    .actions button:hover {
+      background: #8d99ae;
+    }
+
+    /* -----------------------------
+       Mensagem de sucesso
+    ------------------------------*/
+    #msg {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    /* -----------------------------
+       Animação de fade in do card
+    ------------------------------*/
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <script>
+    /**
+     * Valida campos individualmente e aplica classes CSS
+     * @param {HTMLElement} campo - input do formulário
+     * @param {string} tipo - tipo do campo (texto, email, senha, telefone, idade)
+     * @returns {boolean} - true se válido, false se inválido
+     */
+    function validarCampo(campo, tipo) {
+      let valor = campo.value.trim();
+      let valido = false;
+
+      if (tipo === "texto") {
+        valido = valor.length >= 3;
+      } else if (tipo === "email") {
+        valido = /\S+@\S+\.\S+/.test(valor);
+      } else if (tipo === "senha") {
+        valido = valor.length >= 6;
+      } else if (tipo === "telefone") {
+        valido = /^[0-9]{8,15}$/.test(valor); // números apenas
+      } else if (tipo === "idade") {
+        let numero = parseInt(valor, 10);
+        valido = numero >= 1 && numero <= 120; // idade positiva
+      }
+
+      campo.classList.remove("valid", "invalid");
+      if (valido) campo.classList.add("valid");
+      else campo.classList.add("invalid");
+
+      return valido;
+    }
+
+    /**
+     * Valida todo o formulário
+     * @returns {boolean} - true se todos os campos válidos
+     */
+    function validarFormulario() {
+      let nome = validarCampo(document.getElementById("nome"), "texto");
+      let email = validarCampo(document.getElementById("email"), "email");
+      let senha = validarCampo(document.getElementById("senha"), "senha");
+      let telefone = validarCampo(document.getElementById("telefone"), "telefone");
+      let idade = validarCampo(document.getElementById("idade"), "idade");
+
+      return nome && email && senha && telefone && idade;
+    }
+
+    /**
+     * Limpa todos os campos do formulário
+     */
+    function limparFormulario() {
+      document.getElementById("formCadastro").reset();
+      document.querySelectorAll("input").forEach(i => i.classList.remove("valid", "invalid"));
+      document.getElementById("msg").style.display = "none";
+    }
+
+    /**
+     * Função para enviar o formulário (simulação)
+     */
+    function enviarFormulario(event) {
+      event.preventDefault();
+      if (validarFormulario()) {
+        let msg = document.getElementById("msg");
+        msg.innerText = "✅ Cadastro realizado com sucesso!";
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 4000);
+      } else {
+        alert("Preencha todos os campos corretamente!");
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="card">
+    <!-- Imagem ilustrativa -->
+    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="Cadastro Usuário">
+
+    <h2>Cadastro</h2>
+
+    <form id="formCadastro" onsubmit="enviarFormulario(event)">
+      <!-- Nome -->
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" oninput="validarCampo(this,'texto')" required>
+
+      <!-- Email -->
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" oninput="validarCampo(this,'email')" required>
+
+      <!-- Senha -->
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" oninput="validarCampo(this,'senha')" required>
+
+      <!-- Telefone -->
+      <label for="telefone">Telefone</label>
+      <input type="text" id="telefone" name="telefone" oninput="validarCampo(this,'telefone')" required>
+
+      <!-- Idade -->
+      <label for="idade">Idade</label>
+      <input type="number" id="idade" name="idade" min="1" max="120" oninput="validarCampo(this,'idade')" required>
+
+      <!-- Botões -->
+      <div class="actions">
+        <input type="submit" value="Cadastrar">
+        <button type="button" onclick="limparFormulario()">Limpar</button>
+      </div>
+    </form>
+
+    <!-- Mensagem de sucesso -->
+    <div id="msg"></div>
+  </div>
+</body>
+</html>
