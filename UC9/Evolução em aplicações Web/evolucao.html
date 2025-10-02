@@ -4,13 +4,6 @@
   <meta charset="UTF-8">
   <title>Formulário de Cadastro</title>
   <style>
-    /* ===============================
-       🎨 Paleta de Cores
-       #edf2f4 → Fundo do card (claro)
-       #8d99ae → Labels, bordas, botões secundários
-       #2b2d42 → Título, botões principais, fundo escuro
-    ================================*/
-
     /* -----------------------------
        Body: imagem de fundo e centralização
     ------------------------------*/
@@ -110,8 +103,7 @@
     }
 
     /* Botões ocupando o mesmo espaço */
-    .actions input,
-    .actions button {
+    .actions input {
       flex: 1; /* ambos ocupam mesma largura */
       padding: 12px;
       border: none;
@@ -120,25 +112,26 @@
       cursor: pointer;
       transition: 0.3s;
       font-size: 14px;
+      box-sizing: border-box;
     }
 
     /* Botão principal: Cadastrar */
-    .actions input {
+    .actions input[type="submit"] {
       background: #2b2d42;
       color: #fff;
     }
 
-    .actions input:hover {
+    .actions input[type="submit"]:hover {
       background: #8d99ae;
     }
 
     /* Botão secundário: Limpar */
-    .actions button {
-      background: #2b2d42  ;
+    .actions input[type="button"] {
+      background: #2b2d42;
       color: #fff;
     }
 
-    .actions button:hover {
+    .actions input[type="button"]:hover {
       background: #8d99ae;
     }
 
@@ -263,7 +256,7 @@
       <!-- Botões -->
       <div class="actions">
         <input type="submit" value="Cadastrar">
-        <button type="button" onclick="limparFormulario()">Limpar</button>
+        <input type="button" value="Limpar" onclick="limparFormulario()">
       </div>
     </form>
 
