@@ -2,23 +2,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tarefas</title>
     <style>
+        /* ===== ESTILOS GERAIS ===== */
         body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-image: url('https://i.pinimg.com/736x/a6/e8/c3/a6e8c32546ae4a5c6417164fdac0af2a.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      color: #2b2d42;
-    }
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('https://i.pinimg.com/736x/a6/e8/c3/a6e8c32546ae4a5c6417164fdac0af2a.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #2b2d42;
+        }
 
-        /* ======== CONTAINER PRINCIPAL ======== */
+        /* ===== CONTAINER PRINCIPAL ===== */
         .container {
             background: #fff;
             width: 400px;
@@ -33,7 +35,7 @@
             color: #333;
         }
 
-        /* ======== INPUT + BOTÃO ======== */
+        /* ===== ÁREA DE ENTRADA ===== */
         .input-area {
             display: flex;
             justify-content: space-between;
@@ -46,6 +48,11 @@
             border: 1px solid #ccc;
             border-radius: 8px 0 0 8px;
             outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #4CAF50;
         }
 
         button {
@@ -62,10 +69,12 @@
             background: #45a049;
         }
 
-        /* ======== LISTA DE TAREFAS ======== */
+        /* ===== LISTA DE TAREFAS ===== */
         ul {
             padding: 0;
             margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         li {
@@ -78,13 +87,15 @@
             justify-content: space-between;
             align-items: center;
             transition: 0.3s;
+            animation: fadeIn 0.3s ease-in;
         }
 
         li:hover {
             background: #f1f1f1;
+            transform: translateY(-2px);
         }
 
-        /* Botão de remover dentro da tarefa */
+        /* ===== BOTÃO DE REMOVER ===== */
         .remove-btn {
             background: #e74c3c;
             border: none;
@@ -93,65 +104,197 @@
             border-radius: 6px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 12px;
         }
 
         .remove-btn:hover {
             background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        /* ===== ANIMAÇÕES ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== ESTADO VAZIO ===== */
+        .empty-state {
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            background: transparent !important;
+        }
+
+        .empty-state:hover {
+            background: transparent !important;
+            transform: none !important;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                margin: 20px;
+            }
+            
+            .input-area {
+                flex-direction: column;
+            }
+            
+            input {
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+            
+            button {
+                border-radius: 8px;
+                width: 100%;
+            }
         }
     </style>
+</head>
+<body>
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="container">
+        <!-- TÍTULO DA APLICAÇÃO -->
+        <h2>📝 Minha Lista de Tarefas</h2>
+        
+        <!-- ÁREA DE ENTRADA DE DADOS -->
+        <div class="input-area">
+            <input type="text" id="tarefa" placeholder="Digite uma tarefa...">
+            <button onclick="adicionarTarefa()">➕ Adicionar</button>
+        </div>
+        
+        <!-- LISTA DE TAREFAS -->
+        <ul id="lista">
+            <!-- As tarefas serão adicionadas aqui dinamicamente -->
+        </ul>
+    </div>
+
     <script>
-        // ======== FUNÇÃO PARA ADICIONAR TAREFAS ========
+        // ===== VARIÁVEL GLOBAL PARA CONTROLAR O ESTADO =====
+        let emptyMessageElement = null;
+
+        // ===== FUNÇÃO PRINCIPAL - ADICIONAR TAREFA =====
         function adicionarTarefa() {
+            // 1. OBTER E VALIDAR O VALOR DO INPUT
             let input = document.getElementById("tarefa");
             let valor = input.value.trim();
 
+            // Verificar se o campo está vazio
             if (valor === "") {
-                alert("Digite uma tarefa!");
+                alert("⚠️ Por favor, digite uma tarefa!");
+                input.focus();
                 return;
             }
 
-            // Cria elemento <li>
-            let li = document.createElement("li");
-            li.innerText = valor;
+            // Remover mensagem de lista vazia se existir
+            removerMensagemVazia();
 
-            // Botão de remover dentro da tarefa
+            // 2. CRIAR ELEMENTO DA LISTA (LI)
+            let li = document.createElement("li");
+            
+            // Criar span para o texto da tarefa
+            let spanTexto = document.createElement("span");
+            spanTexto.textContent = valor;
+            li.appendChild(spanTexto);
+
+            // 3. CRIAR BOTÃO DE REMOVER
             let botaoRemover = document.createElement("button");
-            botaoRemover.innerText = "Remover";
+            botaoRemover.innerText = "🗑️ Remover";
             botaoRemover.classList.add("remove-btn");
 
-            // Evento para remover a tarefa
+            // 4. ADICIONAR EVENTO DE CLIQUE PARA REMOVER
             botaoRemover.onclick = function() {
-                li.remove();
+                // Adiciona animação de remoção
+                li.style.opacity = '0';
+                li.style.transform = 'translateX(100px)';
+                
+                // Remove após a animação
+                setTimeout(() => {
+                    li.remove();
+                    verificarListaVazia();
+                }, 300);
             };
 
-            // Junta o texto + botão dentro do li
+            // 5. ADICIONAR BOTÃO À TAREFA
             li.appendChild(botaoRemover);
 
-            // Adiciona a tarefa na lista
+            // 6. ADICIONAR À LISTA
             document.getElementById("lista").appendChild(li);
 
-            // Limpa o campo de input
+            // 7. LIMPAR CAMPO E MANTER FOCO
             input.value = "";
+            input.focus();
         }
 
-        // Permitir adicionar com Enter
-        window.onload = function() {
-            document.getElementById("tarefa").addEventListener("keyup", function(event) {
+        // ===== FUNÇÃO PARA REMOVER MENSAGEM DE VAZIO =====
+        function removerMensagemVazia() {
+            if (emptyMessageElement) {
+                emptyMessageElement.remove();
+                emptyMessageElement = null;
+            }
+        }
+
+        // ===== FUNÇÃO PARA VERIFICAR LISTA VAZIA =====
+        function verificarListaVazia() {
+            const lista = document.getElementById("lista");
+            const itensTarefas = lista.querySelectorAll('li:not(.empty-message)');
+            
+            // Se não há tarefas, mostrar mensagem
+            if (itensTarefas.length === 0 && !emptyMessageElement) {
+                emptyMessageElement = document.createElement('li');
+                emptyMessageElement.innerHTML = '<div class="empty-state">🎉 Nenhuma tarefa pendente!</div>';
+                emptyMessageElement.classList.add('empty-message');
+                lista.appendChild(emptyMessageElement);
+            }
+        }
+
+        // ===== EVENT LISTENER PARA TECLA ENTER =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputTarefa = document.getElementById("tarefa");
+            
+            // Evento para tecla Enter
+            inputTarefa.addEventListener("keyup", function(event) {
                 if (event.key === "Enter") {
                     adicionarTarefa();
                 }
             });
-        };
+
+            // Focar no input ao carregar a página
+            inputTarefa.focus();
+            
+            // Verificar estado inicial da lista
+            verificarListaVazia();
+        });
+
+        // ===== FUNÇÕES ADICIONAIS (PARA EXPANSÃO FUTURA) =====
+        
+        /**
+         * Marcar tarefa como concluída
+         */
+        function marcarConcluida(elemento) {
+            elemento.style.textDecoration = 'line-through';
+            elemento.style.opacity = '0.6';
+        }
+
+        /**
+         * Editar tarefa existente
+         */
+        function editarTarefa(elemento) {
+            const novoTexto = prompt("Editar tarefa:", elemento.textContent);
+            if (novoTexto && novoTexto.trim() !== '') {
+                elemento.textContent = novoTexto.trim();
+            }
+        }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h2>Minha Lista de Tarefas</h2>
-        <div class="input-area">
-            <input type="text" id="tarefa" placeholder="Digite uma tarefa">
-            <button onclick="adicionarTarefa()">Adicionar</button>
-        </div>
-        <ul id="lista"></ul>
-    </div>
 </body>
 </html>
