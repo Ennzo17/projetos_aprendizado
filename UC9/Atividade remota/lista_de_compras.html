@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas</title>
+  <style>
+    /* ====== ESTILOS GLOBAIS ====== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      /* Fundo com gradiente sobreposto à imagem para melhor contraste */
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                  url('https://i.pinimg.com/1200x/e5/9e/bf/e59ebf3e6d761a7e3051d488f79e40c4.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ====== CONTAINER PRINCIPAL ====== */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(5px); /* Efeito de vidro fosco */
+    }
+
+    /* ====== CABEÇALHO ====== */
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ====== ÁREA DE ENTRADA ====== */
+    .input-area {
+      display: flex;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: #f9f9f9;
+    }
+
+    button {
+      padding: 15px 20px;
+      border: none;
+      cursor: pointer;
+      background: #4CAF50;
+      color: #fff;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    button:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+    /* ====== LISTA DE TAREFAS ====== */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 350px;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background: white;
+      transition: all 0.2s ease;
+    }
+
+    li:hover {
+      background: #f9f9f9;
+      transform: translateX(5px);
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    .tarefa-texto {
+      flex: 1;
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    /* ====== BOTÕES DE AÇÃO ====== */
+    .btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-editar {
+      background: #f39c12;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .btn-excluir {
+      background: #e74c3c;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .btn-editar:hover { 
+      background: #d68910; 
+      transform: translateY(-2px);
+    }
+    
+    .btn-excluir:hover { 
+      background: #c0392b; 
+      transform: translateY(-2px);
+    }
+
+    /* ====== MENSAGENS DE FEEDBACK ====== */
+    .mensagem {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .mensagem.visivel {
+      opacity: 1;
+    }
+
+    /* ====== ESTATÍSTICAS ====== */
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .stats span {
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    /* ====== ESTILIZAÇÃO DA BARRA DE ROLAGEM ====== */
+    ul::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ul::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ul::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+
+    ul::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    /* ====== RESPONSIVIDADE ====== */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+      
+      .input-area {
+        flex-direction: column;
+      }
+      
+      button {
+        border-radius: 0 0 10px 10px;
+      }
+      
+      input {
+        border-radius: 10px 10px 0 0;
+      }
+      
+      .btns {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ====== CONTAINER PRINCIPAL ====== -->
+  <div class="container">
+    <h2>📝 Minha Lista de Tarefas</h2>
+
+    <!-- ====== ÁREA DE ENTRADA ====== -->
+    <div class="input-area">
+      <input type="text" id="tarefa" placeholder="Digite uma tarefa...">
+      <button onclick="adicionarItem()">➕ Adicionar</button>
+    </div>
+
+    <!-- ====== LISTA DE TAREFAS ====== -->
+    <ul id="lista"></ul>
+
+    <!-- ====== ESTATÍSTICAS ====== -->
+    <div class="stats">
+      <div>Total: <span id="total-tarefas">0</span></div>
+      <div>Editando: <span id="status-edicao">Não</span></div>
+    </div>
+
+    <!-- ====== MENSAGENS DE FEEDBACK ====== -->
+    <div id="mensagem" class="mensagem"></div>
+  </div>
+
+  <script>
+    // ====== VARIÁVEIS GLOBAIS ======
+    /**
+     * Array que armazena todas as tarefas
+     * @type {string[]}
+     */
+    let tarefas = [];
+    
+    /**
+     * Índice da tarefa sendo editada (null se não estiver editando)
+     * @type {number|null}
+     */
+    let editIndex = null;
+
+    // ====== INICIALIZAÇÃO ======
+    /**
+     * Função executada quando a página é carregada
+     * Carrega dados do localStorage e configura eventos
+     */
+    window.onload = () => {
+      carregarLocalStorage();
+      listarItens();
+      atualizarStats();
+
+      // Configura evento para adicionar tarefa com a tecla Enter
+      document.getElementById("tarefa").addEventListener("keyup", (event) => {
+        if (event.key === "Enter") adicionarItem();
+      });
+    };
+
+    // ====== FUNÇÕES PRINCIPAIS ======
+    
+    /**
+     * Adiciona uma nova tarefa ou edita uma existente
+     * Valida entrada, verifica duplicatas e atualiza a interface
+     */
+    function adicionarItem() {
+      const input = document.getElementById("tarefa");
+      let valor = input.value.trim();
+
+      // Validação: campo vazio
+      if (valor === "") {
+        mostrarMensagem("⚠ Digite uma tarefa!", "#e74c3c");
+        return;
+      }
+
+      // Validação: tarefa duplicada (apenas para adição, não para edição)
+      if (tarefas.includes(valor) && editIndex === null) {
+        mostrarMensagem("⚠ Essa tarefa já existe!", "#e74c3c");
+        return;
+      }
+
+      // Modo edição
+      if (editIndex !== null) {
+        tarefas[editIndex] = valor;
+        editIndex = null;
+        mostrarMensagem("✏ Tarefa editada com sucesso!", "#f39c12");
+      } else {
+        // Modo adição
+        tarefas.push(valor);
+        mostrarMensagem("✅ Item adicionado com sucesso!", "#4CAF50");
+      }
+
+      salvarLocalStorage();
+      listarItens();
+      atualizarStats();
+      input.value = "";
+      input.focus();
+    }
+
+    /**
+     * Renderiza a lista de tarefas na interface
+     * Cria elementos dinamicamente para cada tarefa
+     */
+    function listarItens() {
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+
+      // Mensagem quando não há tarefas
+      if (tarefas.length === 0) {
+        let li = document.createElement("li");
+        li.innerHTML = '<div class="tarefa-texto" style="text-align: center; color: #888;">Nenhuma tarefa adicionada</div>';
+        lista.appendChild(li);
+        return;
+      }
+
+      // Cria um item de lista para cada tarefa
+      tarefas.forEach((tarefa, index) => {
+        let li = document.createElement("li");
+
+        // Texto da tarefa
+        let span = document.createElement("div");
+        span.textContent = tarefa;
+        span.classList.add("tarefa-texto");
+
+        // Container dos botões
+        let divBtns = document.createElement("div");
+        divBtns.classList.add("btns");
+
+        // Botão editar
+        let btnEditar = document.createElement("button");
+        btnEditar.textContent = "✏";
+        btnEditar.title = "Editar tarefa";
+        btnEditar.classList.add("btn-editar");
+        btnEditar.onclick = () => editarItem(index);
+
+        // Botão excluir
+        let btnExcluir = document.createElement("button");
+        btnExcluir.textContent = "🗑";
+        btnExcluir.title = "Excluir tarefa";
+        btnExcluir.classList.add("btn-excluir");
+        btnExcluir.onclick = () => removerItem(index);
+
+        divBtns.appendChild(btnEditar);
+        divBtns.appendChild(btnExcluir);
+
+        li.appendChild(span);
+        li.appendChild(divBtns);
+        lista.appendChild(li);
+      });
+    }
+
+    /**
+     * Remove uma tarefa da lista após confirmação
+     * @param {number} index - Índice da tarefa a ser removida
+     */
+    function removerItem(index) {
+      if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+        tarefas.splice(index, 1);
+        salvarLocalStorage();
+        listarItens();
+        atualizarStats();
+        mostrarMensagem("🗑 Item removido com sucesso!", "#e74c3c");
+      }
+    }
+
+    /**
+     * Prepara a interface para edição de uma tarefa
+     * @param {number} index - Índice da tarefa a ser editada
+     */
+    function editarItem(index) {
+      document.getElementById("tarefa").value = tarefas[index];
+      document.getElementById("tarefa").focus();
+      editIndex = index;
+      atualizarStats();
+    }
+
+    // ====== FUNÇÕES AUXILIARES ======
+    
+    /**
+     * Atualiza as estatísticas exibidas (total de tarefas e status de edição)
+     */
+    function atualizarStats() {
+      document.getElementById("total-tarefas").textContent = tarefas.length;
+      document.getElementById("status-edicao").textContent = editIndex !== null ? "Sim" : "Não";
+    }
+
+    /**
+     * Salva a lista de tarefas no localStorage do navegador
+     */
+    function salvarLocalStorage() {
+      localStorage.setItem("tarefas", JSON.stringify(tarefas));
+    }
+
+    /**
+     * Carrega a lista de tarefas do localStorage do navegador
+     */
+    function carregarLocalStorage() {
+      const dados = localStorage.getItem("tarefas");
+      if (dados) {
+        tarefas = JSON.parse(dados);
+      }
+      
+    }
+
+    /**
+     * Exibe uma mensagem de feedback temporária
+     * @param {string} texto - Texto da mensagem
+     * @param {string} cor - Cor de fundo da mensagem (padrão: verde)
+     */
+    function mostrarMensagem(texto, cor = "#4CAF50") {
+      const msg = document.getElementById("mensagem");
+      msg.textContent = texto;
+      msg.style.color = "white";
+      msg.style.backgroundColor = cor;
+      msg.classList.add("visivel");
+
+      // Remove a mensagem após 3 segundos
+      setTimeout(() => {
+        msg.classList.remove("visivel");
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
